@@ -1,0 +1,17 @@
+id: CS-AWS-EKS-001
+title: EKS control plane endpoint is public
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: high
+category: Containers
+provider: aws
+framework: AWS FSBP
+control_id: EKS.1
+scope: resource
+resource_types:
+- aws_eks_cluster
+check: eks_public_endpoint
+remediation: Disable public endpoint access or restrict public_access_cidrs to trusted
+  networks.
+enabled: true
+version: 1

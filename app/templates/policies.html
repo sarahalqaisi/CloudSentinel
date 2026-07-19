@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-head">
+  <div><p class="eyebrow">POLICY ENGINE</p><h1>Policy Studio</h1><p>Review, enable, and manage CloudSentinel YAML security controls.</p></div>
+  <form method="post" action="/policies/import"><input type="hidden" name="csrf" value="{{ csrf_token(request) }}"><button class="btn primary">Import bundled policies</button></form>
+</section>
+<form class="filters" method="get">
+  <input name="q" value="{{ q }}" placeholder="Search policy, control, title">
+  <select name="severity"><option value="">All severities</option>{% for item in ['critical','high','medium','low','info'] %}<option value="{{ item }}" {% if severity==item %}selected{% endif %}>{{ item|title }}</option>{% endfor %}</select>
+  <select name="category"><option value="">All categories</option>{% for item in categories %}<option {% if category==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+  <button class="btn">Filter</button>
+</form>
+<div class="table-card">
+<table><thead><tr><th>Policy</th><th>Severity</th><th>Category</th><th>Provider</th><th>Framework</th><th>Status</th></tr></thead>
+<tbody>{% for policy in policies %}<tr>
+<td><a class="strong" href="/policies/{{ policy.id }}">{{ policy.policy_key }}</a><span class="muted block">{{ policy.title }}</span></td>
+<td><span class="badge {{ policy.severity }}">{{ policy.severity }}</span></td><td>{{ policy.category }}</td><td>{{ policy.provider|upper }}</td><td>{{ policy.framework }}{% if policy.control_id %}<span class="muted block">{{ policy.control_id }}</span>{% endif %}</td><td><span class="status {{ 'resolved' if policy.enabled else 'suppressed' }}">{{ 'Enabled' if policy.enabled else 'Disabled' }}</span></td>
+</tr>{% else %}<tr><td colspan="6" class="empty">No policies found.</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+id: CS-AWS-IAM-001
+title: IAM policy grants wildcard administrator access
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: critical
+category: IAM
+provider: aws
+framework: CIS AWS Foundations
+control_id: IAM.1
+scope: resource
+resource_types:
+- aws_iam_policy
+- aws_iam_role_policy
+- aws_iam_user_policy
+check: iam_wildcard
+remediation: Replace wildcard Action and Resource with least-privilege permissions.
+enabled: true
+version: 1

@@ -1,0 +1,16 @@
+id: CS-AWS-GD-001
+title: GuardDuty detector is not defined
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: high
+category: Threat Detection
+provider: aws
+framework: AWS FSBP
+control_id: GuardDuty.1
+scope: scan
+resource_types: []
+check: missing_guardduty
+remediation: Enable GuardDuty centrally and configure delegated administration where
+  applicable.
+enabled: true
+version: 1

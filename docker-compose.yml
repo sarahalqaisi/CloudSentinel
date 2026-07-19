@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      SECRET_KEY: ${SECRET_KEY:-replace-this-for-production}
+      DATABASE_URL: postgresql+psycopg://cloudsentinel:cloudsentinel@db:5432/cloudsentinel
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - reports:/app/reports
+      - uploads:/app/uploads
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: cloudsentinel
+      POSTGRES_USER: cloudsentinel
+      POSTGRES_PASSWORD: cloudsentinel
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudsentinel"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    volumes:
+      - postgres:/var/lib/postgresql/data
+volumes:
+  postgres:
+  reports:
+  uploads:

@@ -1,0 +1,16 @@
+id: CS-AWS-SQS-001
+title: SQS queue encryption is not configured
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Encryption
+provider: aws
+framework: AWS FSBP
+control_id: SQS.1
+scope: resource
+resource_types:
+- aws_sqs_queue
+check: sqs_unencrypted
+remediation: Configure kms_master_key_id for the queue.
+enabled: true
+version: 1

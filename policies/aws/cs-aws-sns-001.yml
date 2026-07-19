@@ -1,0 +1,16 @@
+id: CS-AWS-SNS-001
+title: SNS topic encryption is not configured
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Encryption
+provider: aws
+framework: AWS FSBP
+control_id: SNS.1
+scope: resource
+resource_types:
+- aws_sns_topic
+check: sns_unencrypted
+remediation: Configure kms_master_key_id for the topic.
+enabled: true
+version: 1

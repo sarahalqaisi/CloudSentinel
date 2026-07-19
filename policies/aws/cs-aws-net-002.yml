@@ -1,0 +1,17 @@
+id: CS-AWS-NET-002
+title: Security group allows unrestricted ingress
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: critical
+category: Networking
+provider: aws
+framework: AWS FSBP
+control_id: EC2.18
+scope: resource
+resource_types:
+- aws_security_group
+check: public_all_ingress
+remediation: Remove 0.0.0.0/0 or ::/0 rules and allow only required protocols and
+  trusted networks.
+enabled: true
+version: 1

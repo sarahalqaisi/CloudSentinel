@@ -1,0 +1,16 @@
+id: CS-AWS-NET-003
+title: Default security group contains rules
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: high
+category: Networking
+provider: aws
+framework: CIS AWS Foundations
+control_id: EC2.2
+scope: resource
+resource_types:
+- aws_default_security_group
+check: default_sg_rules
+remediation: Remove all ingress and egress rules from the default security group.
+enabled: true
+version: 1

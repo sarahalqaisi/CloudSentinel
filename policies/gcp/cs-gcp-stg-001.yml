@@ -1,0 +1,17 @@
+id: CS-GCP-STG-001
+title: GCP bucket does not enforce public access prevention
+description: Detects cloud infrastructure configurations that violate the CIS Google
+  Cloud security baseline.
+severity: critical
+category: Storage
+provider: gcp
+framework: CIS Google Cloud
+control_id: GCS.1
+scope: resource
+resource_types:
+- google_storage_bucket
+check: gcp_bucket_public
+remediation: Set public_access_prevention to enforced and remove allUsers/allAuthenticatedUsers
+  bindings.
+enabled: true
+version: 1

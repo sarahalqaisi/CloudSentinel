@@ -1,0 +1,16 @@
+id: CS-AWS-KMS-001
+title: KMS automatic key rotation is disabled
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Encryption
+provider: aws
+framework: AWS FSBP
+control_id: KMS.4
+scope: resource
+resource_types:
+- aws_kms_key
+check: kms_rotation_disabled
+remediation: Set enable_key_rotation to true for eligible customer-managed KMS keys.
+enabled: true
+version: 1

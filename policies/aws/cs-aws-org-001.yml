@@ -1,0 +1,16 @@
+id: CS-AWS-ORG-001
+title: No CloudTrail resource is defined
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: critical
+category: Logging
+provider: aws
+framework: CIS AWS Foundations
+control_id: CloudTrail.1
+scope: scan
+resource_types: []
+check: missing_cloudtrail
+remediation: Create an organization or multi-region CloudTrail and deliver logs to
+  a protected bucket.
+enabled: true
+version: 1

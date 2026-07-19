@@ -1,0 +1,16 @@
+id: CS-AWS-EBS-001
+title: EBS volume is not encrypted
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: high
+category: Encryption
+provider: aws
+framework: AWS FSBP
+control_id: EC2.3
+scope: resource
+resource_types:
+- aws_ebs_volume
+check: ebs_unencrypted
+remediation: Enable EBS encryption and use an approved KMS key.
+enabled: true
+version: 1

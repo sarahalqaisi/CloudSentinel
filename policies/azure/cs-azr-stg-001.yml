@@ -1,0 +1,17 @@
+id: CS-AZR-STG-001
+title: Azure storage permits nested public items
+description: Detects cloud infrastructure configurations that violate the CIS Microsoft
+  Azure security baseline.
+severity: critical
+category: Storage
+provider: azure
+framework: CIS Microsoft Azure
+control_id: Storage.1
+scope: resource
+resource_types:
+- azurerm_storage_account
+check: azure_storage_public
+remediation: Set allow_nested_items_to_be_public to false and review container access
+  levels.
+enabled: true
+version: 1

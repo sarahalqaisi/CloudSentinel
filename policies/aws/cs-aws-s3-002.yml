@@ -1,0 +1,17 @@
+id: CS-AWS-S3-002
+title: S3 public access block is incomplete
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: high
+category: Storage
+provider: aws
+framework: AWS FSBP
+control_id: S3.1
+scope: resource
+resource_types:
+- aws_s3_bucket_public_access_block
+check: public_access_block_disabled
+remediation: Enable block_public_acls, block_public_policy, ignore_public_acls, and
+  restrict_public_buckets.
+enabled: true
+version: 1

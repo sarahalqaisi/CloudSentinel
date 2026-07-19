@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-head"><div><p class="eyebrow">{{ policy.policy_key }}</p><h1>{{ policy.title }}</h1><p>{{ policy.description }}</p></div><form method="post" action="/policies/{{ policy.id }}/toggle"><input type="hidden" name="csrf" value="{{ csrf_token(request) }}"><button class="btn {{ 'danger' if policy.enabled else 'primary' }}">{{ 'Disable policy' if policy.enabled else 'Enable policy' }}</button></form></section>
+<div class="grid two">
+  <article class="card"><h2>Policy metadata</h2><dl class="details"><dt>Severity</dt><dd><span class="badge {{ policy.severity }}">{{ policy.severity }}</span></dd><dt>Category</dt><dd>{{ policy.category }}</dd><dt>Provider</dt><dd>{{ policy.provider|upper }}</dd><dt>Framework</dt><dd>{{ policy.framework }}</dd><dt>Control</dt><dd>{{ policy.control_id or '—' }}</dd><dt>Check</dt><dd><code>{{ policy.check_name }}</code></dd><dt>Findings generated</dt><dd>{{ finding_count }}</dd><dt>Version</dt><dd>{{ policy.version }}</dd></dl></article>
+  <article class="card"><h2>Remediation</h2><p>{{ policy.remediation }}</p><div class="callout">CloudSentinel policies are deterministic and run locally. Review remediation against your architecture before applying changes.</div></article>
+</div>
+<article class="card"><div class="card-head"><h2>YAML definition</h2><button class="btn small" data-copy-target="policy-yaml">Copy</button></div><pre id="policy-yaml"><code>{{ policy.yaml_content }}</code></pre></article>
+{% endblock %}

@@ -1,0 +1,17 @@
+id: CS-AWS-LOG-002
+title: CloudWatch log retention is below 30 days
+description: Detects cloud infrastructure configurations that violate the CloudSentinel
+  Baseline security baseline.
+severity: low
+category: Logging
+provider: aws
+framework: CloudSentinel Baseline
+control_id: LOG-RET-01
+scope: resource
+resource_types:
+- aws_cloudwatch_log_group
+check: log_retention_short
+remediation: Set retention_in_days to at least 30 or according to your compliance
+  policy.
+enabled: true
+version: 1

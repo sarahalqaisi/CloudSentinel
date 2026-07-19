@@ -1,0 +1,17 @@
+id: CS-AWS-SEC-001
+title: Secret can be deleted without a recovery window
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: high
+category: Secrets
+provider: aws
+framework: AWS FSBP
+control_id: SecretsManager.3
+scope: resource
+resource_types:
+- aws_secretsmanager_secret
+check: secret_recovery_zero
+remediation: Use a recovery window and restrict force deletion to controlled emergency
+  processes.
+enabled: true
+version: 1

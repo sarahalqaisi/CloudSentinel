@@ -1,0 +1,17 @@
+id: CS-AWS-NET-001
+title: Administrative ports exposed to the internet
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: critical
+category: Networking
+provider: aws
+framework: CIS AWS Foundations
+control_id: EC2.5
+scope: resource
+resource_types:
+- aws_security_group
+check: public_admin_ingress
+remediation: Restrict administrative ports such as SSH and RDP to approved VPN or
+  bastion CIDR ranges.
+enabled: true
+version: 1

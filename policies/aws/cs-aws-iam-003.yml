@@ -1,0 +1,17 @@
+id: CS-AWS-IAM-003
+title: Account password policy is weak
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: high
+category: IAM
+provider: aws
+framework: CIS AWS Foundations
+control_id: IAM.15
+scope: resource
+resource_types:
+- aws_iam_account_password_policy
+check: weak_password_policy
+remediation: Require 14+ characters, complexity, and a maximum password age no greater
+  than 90 days.
+enabled: true
+version: 1

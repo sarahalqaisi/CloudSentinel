@@ -1,0 +1,16 @@
+id: CS-AWS-RDS-001
+title: RDS database is publicly accessible
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: critical
+category: Database
+provider: aws
+framework: AWS FSBP
+control_id: RDS.2
+scope: resource
+resource_types:
+- aws_db_instance
+check: rds_public
+remediation: Set publicly_accessible to false and place the database in private subnets.
+enabled: true
+version: 1

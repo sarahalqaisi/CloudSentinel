@@ -1,0 +1,15 @@
+id: CS-AWS-CFG-001
+title: AWS Config recorder is not defined
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: high
+category: Governance
+provider: aws
+framework: CIS AWS Foundations
+control_id: Config.1
+scope: scan
+resource_types: []
+check: missing_config_recorder
+remediation: Enable AWS Config recording in all required regions.
+enabled: true
+version: 1

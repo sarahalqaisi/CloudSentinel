@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 128" role="img" aria-labelledby="title desc">
+<title id="title">CloudSentinel logo</title><desc id="desc">A cloud protected by a geometric shield with a check mark.</desc>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#35e6ff"/><stop offset=".52" stop-color="#4f8cff"/><stop offset="1" stop-color="#9d6bff"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g transform="translate(8 8)"><path d="M44 82h55c18 0 31-11 31-27 0-14-10-25-24-27C101 11 88 2 71 2 50 2 35 16 32 36 14 38 2 48 2 63c0 11 7 19 17 19z" fill="#102a49" stroke="#35e6ff" stroke-width="3" opacity=".9"/><path d="M67 30 104 44v29c0 22-14 36-37 46-23-10-37-24-37-46V44z" fill="url(#g)" filter="url(#glow)"/><path d="m49 72 12 12 25-29" fill="none" stroke="#06111f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="156" y="64" fill="#eaf6ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="43" font-weight="750" letter-spacing="-1">Cloud<tspan fill="url(#g)">Sentinel</tspan></text><text x="158" y="91" fill="#8ba7c2" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" letter-spacing="3">CLOUD SECURITY · TERRAFORM · DEVSECOPS</text>
+</svg>

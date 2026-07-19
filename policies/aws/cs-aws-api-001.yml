@@ -1,0 +1,17 @@
+id: CS-AWS-API-001
+title: API Gateway access logging is missing
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Logging
+provider: aws
+framework: AWS FSBP
+control_id: APIGateway.1
+scope: resource
+resource_types:
+- aws_api_gateway_stage
+- aws_apigatewayv2_stage
+check: api_gateway_logging_missing
+remediation: Configure access logs with a structured format and protected log group.
+enabled: true
+version: 1

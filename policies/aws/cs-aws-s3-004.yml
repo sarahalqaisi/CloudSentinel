@@ -1,0 +1,16 @@
+id: CS-AWS-S3-004
+title: S3 versioning is not enabled
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Resilience
+provider: aws
+framework: AWS FSBP
+control_id: S3.14
+scope: resource
+resource_types:
+- aws_s3_bucket
+check: s3_versioning_missing
+remediation: Enable S3 bucket versioning to improve recovery and investigation capability.
+enabled: true
+version: 1

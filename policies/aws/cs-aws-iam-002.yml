@@ -1,0 +1,17 @@
+id: CS-AWS-IAM-002
+title: Long-lived IAM access key is managed in Terraform
+description: Detects cloud infrastructure configurations that violate the CloudSentinel
+  Baseline security baseline.
+severity: high
+category: IAM
+provider: aws
+framework: CloudSentinel Baseline
+control_id: IAM-KEY-01
+scope: resource
+resource_types:
+- aws_iam_access_key
+check: access_key_present
+remediation: Prefer short-lived federation. Do not commit or manage long-lived secret
+  keys in infrastructure code.
+enabled: true
+version: 1

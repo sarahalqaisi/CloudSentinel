@@ -1,0 +1,15 @@
+id: CS-AWS-NET-004
+title: No VPC Flow Log resource is defined
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: high
+category: Networking
+provider: aws
+framework: AWS FSBP
+control_id: EC2.6
+scope: scan
+resource_types: []
+check: missing_vpc_flow_logs
+remediation: Enable VPC Flow Logs for relevant VPCs, subnets, or network interfaces.
+enabled: true
+version: 1

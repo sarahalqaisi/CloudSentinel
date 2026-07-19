@@ -1,0 +1,17 @@
+id: CS-AWS-RDS-003
+title: RDS backup retention is below seven days
+description: Detects cloud infrastructure configurations that violate the CloudSentinel
+  Baseline security baseline.
+severity: medium
+category: Resilience
+provider: aws
+framework: CloudSentinel Baseline
+control_id: DB-RET-01
+scope: resource
+resource_types:
+- aws_db_instance
+check: rds_backup_short
+remediation: Set backup_retention_period to at least 7 days, aligned with recovery
+  requirements.
+enabled: true
+version: 1

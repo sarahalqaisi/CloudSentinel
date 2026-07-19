@@ -1,0 +1,16 @@
+id: CS-AWS-ELB-001
+title: Load balancer deletion protection is disabled
+description: Detects cloud infrastructure configurations that violate the CloudSentinel
+  Baseline security baseline.
+severity: low
+category: Resilience
+provider: aws
+framework: CloudSentinel Baseline
+control_id: ELB-DEL-01
+scope: resource
+resource_types:
+- aws_lb
+check: alb_deletion_protection
+remediation: Enable deletion protection on production load balancers.
+enabled: true
+version: 1

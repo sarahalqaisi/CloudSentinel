@@ -1,0 +1,17 @@
+id: CS-AWS-S3-003
+title: S3 bucket encryption configuration is missing
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: high
+category: Encryption
+provider: aws
+framework: AWS FSBP
+control_id: S3.4
+scope: resource
+resource_types:
+- aws_s3_bucket
+check: s3_encryption_missing
+remediation: Add aws_s3_bucket_server_side_encryption_configuration using SSE-KMS
+  or SSE-S3.
+enabled: true
+version: 1

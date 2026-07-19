@@ -1,0 +1,17 @@
+id: CS-AWS-EC2-001
+title: EC2 instance receives a public IP
+description: Detects cloud infrastructure configurations that violate the CloudSentinel
+  Baseline security baseline.
+severity: high
+category: Networking
+provider: aws
+framework: CloudSentinel Baseline
+control_id: EC2-PUB-01
+scope: resource
+resource_types:
+- aws_instance
+check: ec2_public_ip
+remediation: Use private subnets and expose workloads through controlled load balancers
+  or gateways.
+enabled: true
+version: 1

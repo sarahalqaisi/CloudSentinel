@@ -1,0 +1,16 @@
+id: CS-AWS-DDB-001
+title: DynamoDB point-in-time recovery is disabled
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Resilience
+provider: aws
+framework: AWS FSBP
+control_id: DynamoDB.2
+scope: resource
+resource_types:
+- aws_dynamodb_table
+check: dynamodb_pitr_missing
+remediation: Enable point-in-time recovery for important DynamoDB tables.
+enabled: true
+version: 1

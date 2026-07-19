@@ -1,0 +1,16 @@
+id: CS-AWS-LOG-001
+title: CloudTrail log file validation is disabled
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: high
+category: Logging
+provider: aws
+framework: CIS AWS Foundations
+control_id: CloudTrail.4
+scope: resource
+resource_types:
+- aws_cloudtrail
+check: cloudtrail_validation_disabled
+remediation: Enable log file validation to detect tampering with CloudTrail logs.
+enabled: true
+version: 1

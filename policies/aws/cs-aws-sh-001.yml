@@ -1,0 +1,15 @@
+id: CS-AWS-SH-001
+title: Security Hub account is not defined
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Governance
+provider: aws
+framework: AWS FSBP
+control_id: SecurityHub.1
+scope: scan
+resource_types: []
+check: missing_securityhub
+remediation: Enable Security Hub and required standards in all governed regions.
+enabled: true
+version: 1

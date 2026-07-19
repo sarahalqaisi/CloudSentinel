@@ -1,0 +1,16 @@
+id: CS-AWS-RDS-004
+title: RDS deletion protection is disabled
+description: Detects cloud infrastructure configurations that violate the AWS FSBP
+  security baseline.
+severity: medium
+category: Resilience
+provider: aws
+framework: AWS FSBP
+control_id: RDS.8
+scope: resource
+resource_types:
+- aws_db_instance
+check: rds_deletion_protection
+remediation: Enable deletion_protection for production databases.
+enabled: true
+version: 1

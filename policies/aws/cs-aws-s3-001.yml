@@ -1,0 +1,16 @@
+id: CS-AWS-S3-001
+title: S3 bucket uses a public ACL
+description: Detects cloud infrastructure configurations that violate the CIS AWS
+  Foundations security baseline.
+severity: critical
+category: Storage
+provider: aws
+framework: CIS AWS Foundations
+control_id: S3.2
+scope: resource
+resource_types:
+- aws_s3_bucket
+check: s3_public_acl
+remediation: Set the bucket ACL to private and use narrowly scoped bucket policies.
+enabled: true
+version: 1

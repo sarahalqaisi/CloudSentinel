@@ -8,6 +8,13 @@ from app.models import Scan
 LEVELS = {"critical": "error", "high": "error", "medium": "warning", "low": "note", "info": "note"}
 
 
+def _security_severity(risk_score: float) -> str:
+    """Convert CloudSentinel's 0-100 risk score to GitHub's SARIF 0.0-10.0 scale."""
+    scaled = max(0.0, min(100.0, float(risk_score))) / 10
+    rendered = f"{scaled:.2f}".rstrip("0")
+    return rendered if not rendered.endswith(".") else f"{rendered}0"
+
+
 def scan_sarif(scan: Scan) -> bytes:
     rules: dict[str, dict[str, Any]] = {}
     results = []
@@ -18,7 +25,7 @@ def scan_sarif(scan: Scan) -> bytes:
             "name": finding.title,
             "shortDescription": {"text": finding.title},
             "help": {"text": finding.remediation or "Review and remediate this finding."},
-            "properties": {"security-severity": str(finding.risk_score), "tags": [finding.category, finding.provider]},
+            "properties": {"security-severity": _security_severity(finding.risk_score), "tags": [finding.category, finding.provider]},
         })
         result: dict[str, Any] = {
             "ruleId": rule_id,

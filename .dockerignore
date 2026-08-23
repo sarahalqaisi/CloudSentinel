@@ -1,0 +1,14 @@
+.env
+.git
+.github
+.pytest_cache
+.venv
+__pycache__
+*.py[cod]
+*.db
+*.sqlite*
+*.tfstate*
+*.tfplan
+reports/*
+uploads/*
+!.gitkeep

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Protocol
 
 import yaml
 from sqlalchemy import select
@@ -260,13 +261,36 @@ def load_policy_file(path: Path) -> dict[str, Any]:
         raise ValueError(f"Policy {path.name} missing: {', '.join(sorted(missing))}")
     if data["check"] not in CHECKS:
         raise ValueError(f"Unknown check {data['check']} in {path.name}")
+    if not isinstance(data["id"], str) or not re.fullmatch(r"CS-(AWS|AZR|GCP)-[A-Z0-9]+-\d{3}", data["id"]):
+        raise ValueError(f"Policy {path.name} has an invalid id")
+    if data["severity"] not in {"critical", "high", "medium", "low", "info"}:
+        raise ValueError(f"Policy {path.name} has an invalid severity")
+    provider = data.get("provider", "aws")
+    if provider not in {"aws", "azure", "gcp"}:
+        raise ValueError(f"Policy {path.name} has an invalid provider")
+    if data.get("scope", "resource") not in {"resource", "scan"}:
+        raise ValueError(f"Policy {path.name} has an invalid scope")
+    for field in ("title", "category", "remediation"):
+        if not isinstance(data[field], str) or not data[field].strip():
+            raise ValueError(f"Policy {path.name} requires a non-empty {field}")
+    resource_types = data.get("resource_types", [])
+    if not isinstance(resource_types, list) or not all(isinstance(item, str) and item for item in resource_types):
+        raise ValueError(f"Policy {path.name} resource_types must be a list of strings")
+    if not isinstance(data.get("enabled", True), bool):
+        raise ValueError(f"Policy {path.name} enabled must be a boolean")
+    if not isinstance(data.get("version", 1), int) or data.get("version", 1) < 1:
+        raise ValueError(f"Policy {path.name} version must be a positive integer")
     return data
 
 
 def import_policies(db: Session) -> tuple[int, int]:
     created = updated = 0
-    for path in sorted(settings.policy_dir.rglob("*.yml")):
-        data = load_policy_file(path)
+    loaded = [(path, load_policy_file(path)) for path in sorted(settings.policy_dir.rglob("*.yml"))]
+    ids = [data["id"] for _, data in loaded]
+    duplicates = sorted({policy_id for policy_id in ids if ids.count(policy_id) > 1})
+    if duplicates:
+        raise ValueError(f"Duplicate policy ids: {', '.join(duplicates)}")
+    for path, data in loaded:
         policy = db.scalar(select(Policy).where(Policy.policy_key == data["id"]))
         values = {
             "title": data["title"],
@@ -304,3 +328,14 @@ def policy_resource_types(policy: Policy) -> list[str]:
 
 def evaluate(policy: Policy, resource, all_resources):
     return CHECKS[policy.check_name](resource, all_resources)
+
+
+class PolicyEvaluator(Protocol):
+    def evaluate(self, policy: Policy, resource, all_resources) -> dict[str, Any] | None: ...
+
+
+class DeterministicPolicyEvaluator:
+    """Default evaluator boundary; alternative policy engines can implement the protocol."""
+
+    def evaluate(self, policy: Policy, resource, all_resources) -> dict[str, Any] | None:
+        return evaluate(policy, resource, all_resources)

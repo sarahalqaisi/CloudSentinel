@@ -5,11 +5,12 @@ from sqlalchemy.orm import sessionmaker
 
 from app.config import BASE_DIR
 from app.database import Base
-from app.models import AuditLog, Finding, Policy
+from app.models import AuditLog, Finding, Policy, Scan
 from app.services.parser import parse_file
 from app.services.policies import import_policies
 from app.services.reporting import scan_csv, scan_json, scan_pdf
-from app.services.scanner import compare_scans, run_scan
+from app.services.sarif import scan_sarif
+from app.services.scanner import _fingerprint, compare_scans, run_scan
 
 
 def session():
@@ -33,6 +34,9 @@ def test_insecure_demo_generates_findings_and_reports():
     assert scan_pdf(scan).startswith(b"%PDF")
     assert b"Resource" in scan_csv(scan)
     assert b'"score"' in scan_json(scan)
+    sarif = scan_sarif(scan)
+    assert b'"version": "2.1.0"' in sarif
+    assert b'"fingerprints"' in sarif
 
 
 def test_scan_comparison_reports_improvement():
@@ -44,3 +48,22 @@ def test_scan_comparison_reports_improvement():
     assert result["previous"].id == bad.id
     assert result["score_delta"] > 0
     assert result["resolved"] > 0
+
+
+def test_fingerprint_is_stable_for_policy_and_resource():
+    assert _fingerprint("CS-AWS-NET-001", "aws_security_group.web") == _fingerprint("CS-AWS-NET-001", "aws_security_group.web")
+    assert _fingerprint("CS-AWS-NET-001", "aws_security_group.web") != _fingerprint("CS-AWS-NET-001", "aws_security_group.db")
+    assert _fingerprint("CS-AWS-NET-001", "aws_security_group.web", "a/main.tf") != _fingerprint("CS-AWS-NET-001", "aws_security_group.web", "b/main.tf")
+
+
+def test_failed_scan_rolls_back_partial_records(monkeypatch):
+    db = session(); import_policies(db)
+    resources = parse_file(BASE_DIR / "sample-data" / "secure-baseline.tf")
+    class FailingEvaluator:
+        def evaluate(self, *args):
+            raise RuntimeError("failure")
+    try:
+        run_scan(db, name="Failed", source_name="main.tf", resources=resources, evaluator=FailingEvaluator())
+    except RuntimeError:
+        pass
+    assert db.scalar(select(Scan).where(Scan.name == "Failed")) is None

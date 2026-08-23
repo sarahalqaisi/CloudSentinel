@@ -29,6 +29,11 @@ def test_health_dashboard_and_api_routes():
         assert stats["summary"]["policies"] == 35
         assert "latest" not in stats["summary"]
         assert client.get("/reports/scans/1.pdf").status_code == 200
+        sarif = client.get("/reports/scans/1.sarif")
+        assert sarif.status_code == 200
+        assert sarif.json()["version"] == "2.1.0"
+        assert sarif.headers["cache-control"] == "no-store"
+        assert sarif.headers["x-content-type-options"] == "nosniff"
 
 
 def test_repository_score_rewards_security_controls():
@@ -55,3 +60,15 @@ def test_authenticated_session_csrf_upload_flow():
         )
         assert response.status_code == 303
         assert response.headers["location"].startswith("/scans/")
+
+
+def test_upload_error_does_not_disclose_parser_details():
+    prepare()
+    with TestClient(app) as client:
+        import re
+        token = re.search(r'name="csrf" value="([^"]+)"', client.get("/scans/new").text).group(1)
+        response = client.post("/scans/upload", data={"name": "bad", "csrf": token}, files={"file": ("bad.json", b"{secret", "application/json")})
+        assert response.status_code == 400
+        assert "secret" not in response.text
+        assert "line" not in response.text
+        assert response.headers["cache-control"] == "no-store"

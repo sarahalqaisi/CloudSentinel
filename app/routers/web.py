@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import secrets
 from pathlib import Path
 from typing import Any
@@ -17,10 +18,12 @@ from app.models import AuditLog, CloudResource, Finding, FindingNote, Policy, Re
 from app.services.analytics import chart_data, compliance_matrix, dashboard_stats, iam_graph, repository_score
 from app.services.policies import import_policies
 from app.services.reporting import scan_csv, scan_json, scan_pdf
+from app.services.sarif import scan_sarif
 from app.services.scanner import compare_scans, scan_file
 from app.services.seed import seed_demo
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 templates = Jinja2Templates(directory=str(BASE_DIR / "app" / "templates"))
 
 
@@ -89,7 +92,10 @@ def new_scan(request: Request):
 async def upload_scan(request: Request, name: str = Form(...), csrf: str = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
     verify_csrf(request, csrf)
     filename = Path(file.filename or "upload").name
-    if not filename.endswith((".tf", ".json", ".tf.json", ".zip")):
+    name = name.strip()
+    if not name or len(name) > 120:
+        raise HTTPException(400, "Scan name must be between 1 and 120 characters")
+    if not filename.lower().endswith((".tf", ".json", ".tf.json", ".zip")):
         raise HTTPException(400, "Upload a .tf, .json, .tf.json, or .zip file.")
     data = await file.read(settings.max_upload_bytes + 1)
     if len(data) > settings.max_upload_bytes:
@@ -97,9 +103,10 @@ async def upload_scan(request: Request, name: str = Form(...), csrf: str = Form(
     target = settings.upload_dir / f"{secrets.token_hex(8)}-{filename}"
     target.write_bytes(data)
     try:
-        scan = scan_file(db, target, name.strip() or filename, "analyst")
-    except Exception as exc:
-        raise HTTPException(400, f"Scan failed: {exc}") from exc
+        scan = scan_file(db, target, name, "analyst")
+    except (ValueError, OSError):
+        logger.exception("Upload scan failed for sanitized filename %s", filename)
+        raise HTTPException(400, "The uploaded file could not be scanned. Verify its format and contents.") from None
     finally:
         target.unlink(missing_ok=True)
     return RedirectResponse(f"/scans/{scan.id}?toast=Scan+completed+successfully", status_code=303)
@@ -150,6 +157,8 @@ def finding_update(finding_id: int, request: Request, status: str = Form(...), a
     finding = db.get(Finding, finding_id)
     if not finding:
         raise HTTPException(404, "Finding not found")
+    if status not in {"open", "acknowledged", "resolved", "false_positive"}:
+        raise HTTPException(400, "Invalid finding status")
     finding.status = status
     finding.assignee = assignee.strip() or None
     db.add(AuditLog(action="finding_updated", entity_type="finding", entity_id=str(finding.id), actor="analyst", details=json.dumps({"status": status, "assignee": assignee})))
@@ -273,6 +282,8 @@ def scan_report(scan_id: int, format: str, db: Session = Depends(get_db)):
         data, media = scan_csv(scan), "text/csv"
     elif format == "json":
         data, media = scan_json(scan), "application/json"
+    elif format == "sarif":
+        data, media = scan_sarif(scan), "application/sarif+json"
     else:
         raise HTTPException(400, "Unsupported report format")
     return Response(data, media_type=media, headers={"Content-Disposition": f'attachment; filename="cloudsentinel-scan-{scan.id}.{format}"'})

@@ -14,6 +14,8 @@ from app.services.policies import import_policies
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    if settings.app_env == "production" and settings.secret_key in {"change-me-in-production", "change-this-before-production", "replace-this-for-production"}:
+        raise RuntimeError("SECRET_KEY must be configured for production")
     init_db()
     with SessionLocal() as db:
         import_policies(db)
@@ -38,6 +40,7 @@ def create_app() -> FastAPI:
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Cache-Control"] = "no-store"
         response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
         return response
 

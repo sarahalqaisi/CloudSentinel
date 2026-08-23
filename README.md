@@ -5,13 +5,13 @@
 ![CloudSentinel Portfolio Showcase](screenshots/cloudsentinel-portfolio-showcase.png)
 
 <p align="center">
-  <strong>Cloud Security Posture, Terraform Policy-as-Code, and DevSecOps Assessment Platform</strong><br>
-  Scan infrastructure locally, prioritize cloud risk, map controls, and produce remediation-ready evidence.
+  <strong>Terraform security scanning and policy-as-code evidence for DevSecOps teams</strong><br>
+  Find cloud misconfigurations before deployment, prioritize deterministic risk, and export remediation-ready results to CI.
 </p>
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-3776AB">
-  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.116-009688">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.141-009688">
   <img alt="Policies" src="https://img.shields.io/badge/Policies-35-35e6ff">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-9d6bff">
   <img alt="Security" src="https://img.shields.io/badge/Mode-Local%20Static%20Analysis-38d996">
@@ -19,7 +19,7 @@
 
 ## Overview
 
-CloudSentinel is a defensive cloud security portfolio project that analyzes Terraform HCL, Terraform JSON, and Terraform plan/state JSON **without executing infrastructure code**. It converts infrastructure into a normalized resource inventory, evaluates versioned YAML policies, creates actionable findings, calculates a security score, maps compliance controls, visualizes IAM relationships, and exports reports.
+CloudSentinel is a defensive static-analysis platform that analyzes Terraform HCL, Terraform JSON, and common plan/state JSON structures **without executing infrastructure code**. It converts infrastructure into a normalized inventory, evaluates 35 versioned policies, creates actionable findings, calculates explainable risk, maps compliance controls, visualizes IAM relationships, and exports human- and machine-readable evidence.
 
 <p align="center"><img src="docs/screenshots/dashboard-preview.png" alt="CloudSentinel dashboard preview" width="100%"></p>
 
@@ -43,8 +43,8 @@ The project is designed to demonstrate practical skills in:
 | Investigation | Finding status, assignee, analyst notes, evidence, source file and line |
 | Governance | Compliance Matrix, control mappings, Audit Log, Repository Security score |
 | Visualization | Responsive dark dashboard and IAM relationship graph |
-| Reporting | PDF, CSV, and JSON exports |
-| Delivery | Kali setup script, Docker Compose, PostgreSQL support, GitHub Actions CI |
+| Reporting | PDF, CSV, JSON, and SARIF 2.1.0 exports |
+| Delivery | CLI scanning, GitHub Code Scanning workflow, Docker Compose, PostgreSQL support |
 
 ## Logo and identity
 
@@ -119,7 +119,7 @@ python run.py
 
 ```bash
 cp .env.example .env
-# Replace SECRET_KEY in .env before production use.
+# Set strong unique SECRET_KEY and POSTGRES_PASSWORD values in .env.
 docker compose up --build
 ```
 
@@ -167,7 +167,7 @@ Policies live in `policies/`. Metadata is YAML, while deterministic checks are i
 
 ## Security scoring
 
-The scanner applies severity weights per resource and creates a score from 0–100:
+Finding risk combines severity, exposure, confidence, blast radius, and exploitability using configurable normalized weights. The scan posture score remains a severity-weighted 0–100 summary:
 
 ```text
 A: 90–100
@@ -177,7 +177,17 @@ D: 60–69
 F: below 60
 ```
 
-Scores prioritize investigation; they are not a certification or substitute for architecture review.
+Scores prioritize investigation; they are deterministic static-analysis estimates, not certification, exploit proof, or a substitute for architecture review. The complete formula, defaults, assumptions, and limitations are documented in [Risk scoring](docs/RISK_SCORING.md).
+
+## DevSecOps and SARIF
+
+Generate a SARIF 2.1.0 report locally or in CI:
+
+```bash
+python scripts/scan_iac.py infrastructure/ --sarif reports/cloudsentinel.sarif
+```
+
+The included workflow retains SARIF as an artifact and, where repository permissions allow, uploads trusted-run results to GitHub Code Scanning. See [DevSecOps integration](docs/DEVSECOPS.md) for permission, fork, and severity-gate behavior.
 
 ## Repository Security
 
@@ -227,6 +237,7 @@ CloudSentinel/
 | `GET /api/health` | Health and version |
 | `GET /api/stats` | Dashboard metrics and chart data |
 | `GET /api/iam-graph` | IAM graph nodes and edges |
+| `GET /reports/scans/{id}.sarif` | SARIF 2.1.0 findings export |
 | `GET /docs` | Interactive OpenAPI documentation |
 
 ## Testing
@@ -236,7 +247,7 @@ source .venv/bin/activate
 pytest
 ```
 
-The test suite covers parsing, policy validation, scan generation, scoring, reports, safe ZIP handling, repository scoring, and key web routes.
+The test suite covers parsing, strict policy validation, deterministic scoring, scan generation, PDF/CSV/JSON/SARIF reports, archive defenses, error disclosure, response headers, repository scoring, persistence, and key web routes.
 
 ## Important security limitations
 
@@ -251,7 +262,6 @@ See [Security Notes](docs/SECURITY.md) and [Architecture](docs/ARCHITECTURE.md).
 ## Roadmap
 
 - Read-only GitHub API integration
-- SARIF export for code scanning
 - Pull-request annotations
 - OPA/Rego policy adapter
 - Native Terraform module resolution

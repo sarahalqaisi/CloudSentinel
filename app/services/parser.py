@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import re
+import stat
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from app.config import settings
 
 
 @dataclass
@@ -278,26 +281,29 @@ def parse_json_data(data: Any, file_path: str) -> list[ParsedResource]:
     return []
 
 
-def parse_file(path: Path) -> list[ParsedResource]:
+def parse_file(path: Path, source_name: str | None = None) -> list[ParsedResource]:
+    source_name = source_name or path.name
     if path.suffix.lower() == ".tf":
-        return parse_tf_text(path.read_text(encoding="utf-8", errors="replace"), path.name)
+        return parse_tf_text(path.read_text(encoding="utf-8", errors="replace"), source_name)
     if path.suffix.lower() == ".json" or path.name.endswith(".tf.json"):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             raise ParseError(f"Invalid JSON in {path.name}: {exc}") from exc
-        return parse_json_data(data, path.name)
+        return parse_json_data(data, source_name)
     raise ParseError(f"Unsupported file type: {path.name}")
 
 
 def safe_extract_zip(path: Path, destination: Path) -> list[Path]:
     extracted = []
     with zipfile.ZipFile(path) as archive:
-        for member in archive.infolist():
+        members = archive.infolist()
+        validate_zip_members(members)
+        for member in members:
             if member.is_dir():
                 continue
             target = (destination / member.filename).resolve()
-            if destination.resolve() not in target.parents:
+            if destination.resolve() not in target.parents or Path(member.filename).is_absolute():
                 raise ParseError("Unsafe ZIP path detected")
             if member.file_size > 8 * 1024 * 1024:
                 raise ParseError(f"ZIP member too large: {member.filename}")
@@ -308,6 +314,22 @@ def safe_extract_zip(path: Path, destination: Path) -> list[Path]:
     return extracted
 
 
+def validate_zip_members(members: list[zipfile.ZipInfo]) -> None:
+    files = [member for member in members if not member.is_dir()]
+    if len(files) > settings.max_archive_members:
+        raise ParseError("ZIP contains too many files")
+    if sum(member.file_size for member in files) > settings.max_archive_bytes:
+        raise ParseError("ZIP expanded size exceeds the configured limit")
+    for member in files:
+        unix_mode = member.external_attr >> 16
+        if stat.S_ISLNK(unix_mode):
+            raise ParseError("ZIP symbolic links are not supported")
+        if member.flag_bits & 0x1:
+            raise ParseError("Encrypted ZIP files are not supported")
+        if member.compress_size and member.file_size / member.compress_size > settings.max_archive_ratio:
+            raise ParseError("ZIP compression ratio exceeds the configured limit")
+
+
 def parse_path(path: Path, work_dir: Path | None = None) -> list[ParsedResource]:
     if path.suffix.lower() == ".zip":
         if work_dir is None:
@@ -316,7 +338,7 @@ def parse_path(path: Path, work_dir: Path | None = None) -> list[ParsedResource]
         for item in safe_extract_zip(path, work_dir):
             if item.suffix.lower() in {".tf", ".json"}:
                 try:
-                    resources.extend(parse_file(item))
+                    resources.extend(parse_file(item, item.relative_to(work_dir).as_posix()))
                 except ParseError:
                     continue
         return resources

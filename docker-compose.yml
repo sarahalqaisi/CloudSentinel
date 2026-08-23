@@ -5,8 +5,8 @@ services:
       - "8000:8000"
     environment:
       APP_ENV: production
-      SECRET_KEY: ${SECRET_KEY:-replace-this-for-production}
-      DATABASE_URL: postgresql+psycopg://cloudsentinel:cloudsentinel@db:5432/cloudsentinel
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY to a strong random value}
+      DATABASE_URL: postgresql+psycopg://cloudsentinel:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@db:5432/cloudsentinel
     depends_on:
       db:
         condition: service_healthy
@@ -18,7 +18,7 @@ services:
     environment:
       POSTGRES_DB: cloudsentinel
       POSTGRES_USER: cloudsentinel
-      POSTGRES_PASSWORD: cloudsentinel
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cloudsentinel"]
       interval: 5s

@@ -24,3 +24,14 @@ def test_lambda_secret_name_detection():
     resource = parse_tf_text('''resource "aws_lambda_function" "x" { environment { variables = { API_TOKEN = "placeholder" } } }''')[0]
     result = CHECKS["lambda_env_secrets"](resource, [resource])
     assert "API_TOKEN" in result["suspicious_keys"]
+
+
+def test_policy_schema_rejects_invalid_severity(tmp_path):
+    policy = tmp_path / "invalid.yml"
+    policy.write_text("id: CS-AWS-TST-001\ntitle: Test\nseverity: urgent\ncategory: Test\ncheck: public_admin_ingress\nremediation: Fix it\n")
+    try:
+        load_policy_file(policy)
+    except ValueError as exc:
+        assert "severity" in str(exc)
+    else:
+        raise AssertionError("invalid policy should be rejected")

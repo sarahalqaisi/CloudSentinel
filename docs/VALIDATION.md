@@ -1,4 +1,4 @@
-# CloudSentinel v1.0 Validation
+# CloudSentinel Validation
 
 ## Clean installation
 
@@ -14,7 +14,7 @@ A clean copy of the repository was installed with `setup_kali.sh` using Python 3
 ## Automated tests
 
 ```text
-12 passed
+21 passed
 ```
 
 Coverage includes:
@@ -27,10 +27,19 @@ Coverage includes:
 6. Administrative-port exposure detection.
 7. Lambda secret-name detection.
 8. End-to-end insecure infrastructure scan.
-9. PDF, CSV, and JSON report generation.
+9. PDF, CSV, JSON, and SARIF 2.1.0 report generation.
 10. Scan comparison and posture improvement.
 11. Dashboard, API, pages, and reports smoke test.
 12. CSRF-protected Terraform upload flow and repository score calculation.
+13. Deterministic, configurable, bounded risk scoring.
+14. Strict policy metadata validation.
+15. ZIP expansion and compression-ratio limits.
+16. Generic client errors without parser detail leakage.
+17. Security and no-cache response headers.
+18. Atomic rollback of failed scans.
+19. SARIF download API behavior.
+20. Stable finding fingerprint behavior.
+21. ZIP symlink and encrypted-member rejection.
 
 ## Demo results
 
